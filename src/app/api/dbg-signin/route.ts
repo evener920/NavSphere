@@ -68,10 +68,13 @@ export async function GET(req: NextRequest) {
     return { key: k, present: !!v, len: v ? v.length : 0 }
   })
 
-  return Response.json({
-    envState,
-    signinResult: result,
-    capturedErrors: captured,
-    logLines,
-  })
+  return new Response(
+    JSON.stringify({
+      envState,
+      signinResult: result,
+      capturedErrors: captured,
+      logLines,
+    }),
+    { headers: { 'content-type': 'application/json' } }
+  )
 }
