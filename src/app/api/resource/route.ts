@@ -35,8 +35,14 @@ export async function POST(request: Request) {
         // 获取上传结果，包含路径和 commit hash
         const { path: imageUrl, commitHash } = await uploadImageToGitHub(binaryData, session.user.accessToken, folder, prefix);
 
-        // Handle metadata
-        const metadata = await getFileContent('src/navsphere/content/resource-metadata.json') as ResourceMetadata;
+        // Handle metadata —— 数据仓可能还没有 resource-metadata.json（getFileContent 会返回 {}），
+        // 或结构不完整；这里做健壮初始化，避免 metadata.metadata 为 undefined 时 unshift 抛错导致 500。
+        const rawMeta = await getFileContent('src/navsphere/content/resource-metadata.json') as Partial<ResourceMetadata> | null;
+        const metadata: ResourceMetadata = {
+            commit: rawMeta?.commit ?? commitHash,
+            generated: rawMeta?.generated ?? new Date().toISOString(),
+            metadata: Array.isArray(rawMeta?.metadata) ? rawMeta.metadata : [],
+        };
         metadata.metadata.unshift({
             commit: commitHash,  // 使用实际的 commit hash
             hash: commitHash,    // 使用相同的 hash 作为资源标识
@@ -96,7 +102,12 @@ async function uploadImageToGitHub(binaryData: Uint8Array, token: string, folder
     const responseData = await response.json();
     const commitHash = responseData.commit.sha; // 获取 commit hash
 
-    return { path, commitHash }; // Return the URL of the uploaded image
+    // 图片存放在数据仓（public/assets/），而站点静态资源由应用仓（NavSphere）提供，
+    // 站内路径 /assets/* 会 404；数据仓为 public，可用 raw.githubusercontent.com 实时直链，
+    // 无需重新部署即可显示。
+    const rawUrl = `https://raw.githubusercontent.com/${owner}/${repo}/${branch}/${githubPath}`;
+
+    return { path: rawUrl, commitHash }; // Return the URL of the uploaded image
 }
 
 export async function DELETE(request: Request) {

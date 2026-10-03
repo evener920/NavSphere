@@ -518,5 +518,9 @@ async function uploadImageToGitHub(
     const responseData = await response.json()
     const commitHash = responseData.commit.sha
 
-    return { path, commitHash }
+    // 图片存放在数据仓（public/assets/），站内 /assets/* 由应用仓提供会 404；
+    // 数据仓为 public，用 raw.githubusercontent.com 实时直链，免重新部署。
+    const rawUrl = `https://raw.githubusercontent.com/${owner}/${repo}/${branch}/${githubPath}`
+
+    return { path: rawUrl, commitHash }
 }
