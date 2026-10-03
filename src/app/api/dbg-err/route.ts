@@ -1,4 +1,4 @@
-import { handlers } from '@/lib/auth'
+import { GET } from '@/lib/auth'
 import { NextRequest } from 'next/server'
 
 export const runtime = 'nodejs'
@@ -9,7 +9,7 @@ export async function GET(req: NextRequest) {
 
   let direct: any = {}
   try {
-    const res = await handlers.GET(
+    const res = await GET(
       new NextRequest(target.toString(), { headers: req.headers })
     )
     direct = {
