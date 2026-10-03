@@ -10,11 +10,14 @@ export const runtime = 'edge'
 
 export async function GET() {
     try {
-        const data = await getFileContent('src/navsphere/content/resource-metadata.json') as ResourceMetadata
-        if (!data?.metadata || !Array.isArray(data.metadata)) {
-            throw new Error('Invalid data structure');
-        }
-        return NextResponse.json(data)
+        const data = await getFileContent('src/navsphere/content/resource-metadata.json') as Partial<ResourceMetadata> | null;
+        // 文件可能尚未创建（首次上传前）；此时返回空结构而非 500
+        const metadata: ResourceMetadata = {
+            commit: data?.commit ?? '',
+            generated: data?.generated ?? '',
+            metadata: Array.isArray(data?.metadata) ? data.metadata : [],
+        };
+        return NextResponse.json(metadata)
     } catch (error) {
         console.error('Failed to fetch resource metadata:', error)
         return NextResponse.json({ error: 'Failed to fetch resource metadata' }, { status: 500 })
