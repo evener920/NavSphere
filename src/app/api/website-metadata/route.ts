@@ -371,6 +371,10 @@ async function downloadGoogleFavicon(domain: string, token: string): Promise<str
         if (response.ok) {
             const arrayBuffer = await response.arrayBuffer()
             const binaryData = new Uint8Array(arrayBuffer)
+            // 同上：google 对无 favicon 的域名会回 200 + HTML/占位内容，必须校验后再上传
+            if (!looksLikeImage(binaryData)) {
+                throw new Error('Google favicon returned non-image content')
+            }
             const { path } = await uploadImageToGitHub(binaryData, token, 'png', 'favicon')
             return path
         } else {
@@ -439,6 +443,14 @@ async function downloadAndUploadIcon(
                 const arrayBuffer = await response.arrayBuffer()
                 const binaryData = new Uint8Array(arrayBuffer)
 
+                // 站点没有 favicon 时，很多服务会返回 200 + HTML 错误页。直接上传会存出
+                // 「假 PNG」（扩展名 .png、内容其实是 HTML），前台必然破图。这里按魔术字节校验。
+                if (!looksLikeImage(binaryData)) {
+                    lastError = new Error('Upstream returned non-image content (likely HTML error page)')
+                    console.warn(`Strategy got non-image content, trying next strategy...`)
+                    continue
+                }
+
                 // 上传到 GitHub
                 const { path } = await uploadImageToGitHub(
                     binaryData,
@@ -460,6 +472,27 @@ async function downloadAndUploadIcon(
 
     // 如果所有策略都失败了，抛出最后一个错误
     throw lastError || new Error('All download strategies failed')
+}
+
+// 按魔术字节判断内容是否真的是图片，防止把 HTML 错误页存成 .png（假 PNG）
+function looksLikeImage(data: Uint8Array): boolean {
+    if (data.length < 4) return false
+    const b = data
+    // PNG: 89 50 4E 47
+    if (b[0] === 0x89 && b[1] === 0x50 && b[2] === 0x4e && b[3] === 0x47) return true
+    // JPEG: FF D8 FF
+    if (b[0] === 0xff && b[1] === 0xd8 && b[2] === 0xff) return true
+    // GIF: GIF8
+    if (b[0] === 0x47 && b[1] === 0x49 && b[2] === 0x46) return true
+    // WebP: RIFF....WEBP
+    if (b[0] === 0x52 && b[1] === 0x49 && b[2] === 0x46 && b[3] === 0x46 &&
+        b[8] === 0x57 && b[9] === 0x45 && b[10] === 0x42 && b[11] === 0x50) return true
+    // ICO: 00 00 01 00
+    if (b[0] === 0x00 && b[1] === 0x00 && b[2] === 0x01 && b[3] === 0x00) return true
+    // SVG / AVIF 等文本或容器格式：以 '<' 或 'fTyp' 开头
+    if (b[0] === 0x3c) return true
+    if (b[4] === 0x66 && b[5] === 0x74 && b[6] === 0x79 && b[7] === 0x70) return true // ftyp (avif/heic)
+    return false
 }
 
 function getFileExtension(url: string): string {
