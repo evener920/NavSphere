@@ -43,7 +43,7 @@ export async function GET(req: NextRequest) {
 
   let result: any = {}
   try {
-    const res = await GET(new Request(target.toString(), { headers: req.headers }))
+    const res = await GET(new NextRequest(target.toString(), { headers: req.headers }))
     result = {
       status: res.status,
       location: res.headers.get('location'),
