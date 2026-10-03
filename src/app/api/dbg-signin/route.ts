@@ -11,6 +11,7 @@ export async function GET(req: NextRequest) {
 
   const testConfig: any = {
     ...baseConfig,
+    basePath: '/api/auth',
     debug: false,
     logger: {
       error: (code: any, ...rest: any[]) => {
