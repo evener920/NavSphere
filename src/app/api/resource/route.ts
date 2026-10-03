@@ -10,12 +10,12 @@ export const runtime = 'edge'
 
 export async function GET() {
     try {
-        const data = await getFileContent('src/navsphere/content/resource-metadata.json') as Partial<ResourceMetadata> | null;
+        const data = (await getFileContent('src/navsphere/content/resource-metadata.json') || {}) as Partial<ResourceMetadata>;
         // 文件可能尚未创建（首次上传前）；此时返回空结构而非 500
         const metadata: ResourceMetadata = {
-            commit: data?.commit ?? '',
-            generated: data?.generated ?? '',
-            metadata: Array.isArray(data?.metadata) ? data.metadata : [],
+            commit: data.commit ?? '',
+            generated: data.generated ?? '',
+            metadata: Array.isArray(data.metadata) ? data.metadata : [],
         };
         return NextResponse.json(metadata)
     } catch (error) {
