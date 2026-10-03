@@ -10,6 +10,7 @@ import { Card, CardContent } from "@/registry/new-york/ui/card"
 import { Input } from "@/registry/new-york/ui/input"
 import { Button } from "@/registry/new-york/ui/button"
 import { useToast } from "@/registry/new-york/hooks/use-toast"
+import { proxiedImageUrl } from "@/lib/image-proxy"
 
 import {
   Loader2,
@@ -615,7 +616,7 @@ export default function ResourceManagement() {
                   </div>
 
                   <img
-                    src={resource.items[0].url}
+                    src={proxiedImageUrl(resource.items[0].url)}
                     alt={`Resource ${index + 1}`}
                     className="w-full h-full object-cover rounded-t-lg"
                     loading="lazy"
@@ -861,7 +862,7 @@ export default function ResourceManagement() {
                       .map((resource, index) => (
                         <div key={index} className="relative group">
                           <img
-                            src={resource.items[0].url}
+                            src={proxiedImageUrl(resource.items[0].url)}
                             alt="Resource"
                             className="w-full aspect-square object-cover rounded border"
                           />
@@ -883,7 +884,7 @@ export default function ResourceManagement() {
                       .map((resource, index) => (
                         <div key={index} className="flex items-center gap-3 p-2 bg-gray-50 rounded-lg">
                           <img
-                            src={resource.items[0].url}
+                            src={proxiedImageUrl(resource.items[0].url)}
                             alt="Resource"
                             className="w-12 h-12 object-cover rounded border flex-shrink-0"
                           />

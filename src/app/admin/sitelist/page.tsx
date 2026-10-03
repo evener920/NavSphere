@@ -3,6 +3,7 @@
 export const runtime = 'edge'
 
 import { useState, useEffect, useRef } from 'react'
+import { proxiedImageUrl } from '@/lib/image-proxy'
 import { useRouter } from 'next/navigation'
 import { Button } from "@/registry/new-york/ui/button"
 import { useToast } from "@/registry/new-york/hooks/use-toast"
@@ -1249,7 +1250,7 @@ export default function SiteListPage() {
                         {newSite.icon && (
                           <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
                             <img
-                              src={newSite.icon}
+                              src={proxiedImageUrl(newSite.icon)}
                               alt="图标预览"
                               className="w-4 h-4 object-contain"
                               onError={(e) => {
@@ -1463,7 +1464,7 @@ export default function SiteListPage() {
                         {editSite.icon && (
                           <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
                             <img
-                              src={editSite.icon}
+                              src={proxiedImageUrl(editSite.icon)}
                               alt="图标预览"
                               className="w-4 h-4 object-contain"
                               onError={(e) => {

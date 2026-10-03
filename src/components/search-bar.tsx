@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useRef, useEffect } from 'react'
+import { proxiedImageUrl } from '@/lib/image-proxy'
 import { Input } from '@/registry/new-york/ui/input'
 import { Command, CommandList, CommandGroup, CommandItem } from '@/registry/new-york/ui/command'
 import { Search, X } from 'lucide-react'
@@ -148,7 +149,7 @@ export function SearchBar({ onSearch, searchResults, searchQuery, siteConfig }: 
                         <div className="flex-shrink-0 w-8 h-8">
                           {item.icon && (
                             <img
-                              src={item.icon}
+                              src={proxiedImageUrl(item.icon)}
                               alt={`${item.title} icon`}
                               className="w-full h-full object-contain rounded"
                               onError={(e) => {
@@ -185,7 +186,7 @@ export function SearchBar({ onSearch, searchResults, searchQuery, siteConfig }: 
                             <div className="flex-shrink-0 w-8 h-8">
                               {item.icon && (
                                 <img
-                                  src={item.icon}
+                                  src={proxiedImageUrl(item.icon)}
                                   alt={`${item.title} icon`}
                                   className="w-full h-full object-contain rounded"
                                   onError={(e) => {

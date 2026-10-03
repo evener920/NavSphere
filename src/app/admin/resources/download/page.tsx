@@ -1,6 +1,7 @@
 'use client'
 
-import React, { useState } from 'react';
+import React, { useState } from 'react'
+import { proxiedImageUrl } from '@/lib/image-proxy';
 export const runtime = 'edge'
 
 const FaviconDownloader: React.FC = () => {
@@ -88,7 +89,7 @@ const FaviconDownloader: React.FC = () => {
                         {faviconUrl && (
                             <div className="text-center p-6 bg-gray-50 rounded-lg">
                                 <img
-                                    src={faviconUrl}
+                                    src={proxiedImageUrl(faviconUrl)}
                                     alt="Favicon"
                                     className="w-16 h-16 mx-auto mb-4 shadow-md rounded"
                                 />

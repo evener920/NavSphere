@@ -3,6 +3,7 @@
 export const runtime = 'edge'
 
 import { useState, useEffect } from 'react'
+import { proxiedImageUrl } from '@/lib/image-proxy'
 import { useParams, useRouter } from 'next/navigation'
 import { Button } from "@/registry/new-york/ui/button"
 import { useToast } from "@/registry/new-york/hooks/use-toast"
@@ -311,7 +312,7 @@ export default function VideoItemsPage() {
                             <div className="flex items-center gap-3">
                                 <div className="flex items-center justify-center w-12 h-12 rounded-lg bg-primary/10 overflow-hidden relative">
                                     {item.icon ? (
-                                        <img src={item.icon} alt={item.title} className="w-full h-full object-cover" />
+                                        <img src={proxiedImageUrl(item.icon)} alt={item.title} className="w-full h-full object-cover" />
                                     ) : (
                                         <Icons.video className="h-6 w-6 text-primary" />
                                     )}

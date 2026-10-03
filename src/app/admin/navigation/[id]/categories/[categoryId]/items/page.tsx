@@ -3,6 +3,7 @@
 export const runtime = 'edge'
 
 import { useState, useEffect } from 'react'
+import { proxiedImageUrl } from '@/lib/image-proxy'
 import { useParams, useRouter } from 'next/navigation'
 import { Button } from "@/registry/new-york/ui/button"
 import { useToast } from "@/registry/new-york/hooks/use-toast"
@@ -462,7 +463,7 @@ export default function CategoryItemsPage() {
                             <div className="flex items-center gap-3">
                               <div className="flex items-center justify-center w-8 h-8 rounded-lg bg-primary/10">
                                 {item.icon ? (
-                                  <img src={item.icon} alt={item.title} className="w-4 h-4 object-contain" />
+                                  <img src={proxiedImageUrl(item.icon)} alt={item.title} className="w-4 h-4 object-contain" />
                                 ) : (
                                   <Icons.link className="h-4 w-4 text-primary" />
                                 )}
