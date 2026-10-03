@@ -37,11 +37,12 @@ export async function POST(request: Request) {
 
         // Handle metadata —— 数据仓可能还没有 resource-metadata.json（getFileContent 会返回 {}），
         // 或结构不完整；这里做健壮初始化，避免 metadata.metadata 为 undefined 时 unshift 抛错导致 500。
-        const rawMeta = await getFileContent('src/navsphere/content/resource-metadata.json') as Partial<ResourceMetadata> | null;
+        const rawMeta = (await getFileContent('src/navsphere/content/resource-metadata.json') || {}) as Partial<ResourceMetadata>;
+        const existing: ResourceMetadata['metadata'] = Array.isArray(rawMeta.metadata) ? rawMeta.metadata : [];
         const metadata: ResourceMetadata = {
-            commit: rawMeta?.commit ?? commitHash,
-            generated: rawMeta?.generated ?? new Date().toISOString(),
-            metadata: Array.isArray(rawMeta?.metadata) ? rawMeta.metadata : [],
+            commit: rawMeta.commit ?? commitHash,
+            generated: rawMeta.generated ?? new Date().toISOString(),
+            metadata: existing,
         };
         metadata.metadata.unshift({
             commit: commitHash,  // 使用实际的 commit hash
