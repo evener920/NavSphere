@@ -1,4 +1,4 @@
-import { GET } from '@/lib/auth'
+import { GET as authGET } from '@/lib/auth'
 import { NextRequest } from 'next/server'
 
 export const runtime = 'nodejs'
@@ -9,7 +9,7 @@ export async function GET(req: NextRequest) {
 
   let direct: any = {}
   try {
-    const res = await GET(
+    const res = await authGET(
       new NextRequest(target.toString(), { headers: req.headers })
     )
     direct = {
