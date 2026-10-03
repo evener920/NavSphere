@@ -21,6 +21,7 @@ const config = {
     GitHub({
       clientId: process.env.GITHUB_CLIENT_ID,
       clientSecret: process.env.GITHUB_CLIENT_SECRET,
+      // NavSphere needs `repo` scope to read/write the data repo (evener920/nav)
       authorization: {
         url: 'https://github.com/login/oauth/authorize',
         params: { scope: 'read:user user:email repo' }
@@ -45,30 +46,7 @@ const config = {
     signIn: '/auth/signin'
   },
   trustHost: true,
-  secret: process.env.AUTH_SECRET,
-  logger: {
-    error: (code: any) => {
-      const g: any = globalThis
-      g.__AUTH_ERR = g.__AUTH_ERR || []
-      g.__AUTH_ERR.push({
-        type: code?.type ?? code?.name,
-        message: code?.message,
-        cause: code?.cause
-          ? {
-              message: (code.cause as any)?.message,
-              name: (code.cause as any)?.name,
-              stack: (code.cause as any)?.stack,
-            }
-          : undefined,
-        stack: code?.stack,
-      })
-      // eslint-disable-next-line no-console
-      console.error('[AUTH_DIAG]', JSON.stringify(g.__AUTH_ERR.at(-1)))
-    },
-    warn: () => {},
-    debug: () => {},
-    info: () => {},
-  } as any
+  secret: process.env.AUTH_SECRET
 } satisfies NextAuthConfig
 
 const handler = NextAuth(config)
