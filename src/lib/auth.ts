@@ -1,5 +1,5 @@
 import NextAuth from 'next-auth'
-import GithubProvider from 'next-auth/providers/github'
+import GitHub from 'next-auth/providers/github'
 import type { DefaultSession, NextAuthConfig } from 'next-auth'
 
 declare module 'next-auth' {
@@ -18,9 +18,7 @@ declare module 'next-auth' {
 
 const config = {
   providers: [
-    GithubProvider({
-      clientId: process.env.GITHUB_CLIENT_ID!,
-      clientSecret: process.env.GITHUB_CLIENT_SECRET!,
+    GitHub({
       authorization: {
         params: { scope: 'repo' }
       }
@@ -43,7 +41,7 @@ const config = {
   pages: {
     signIn: '/auth/signin'
   },
-  secret: process.env.AUTH_SECRET || process.env.GITHUB_CLIENT_SECRET
+  secret: process.env.AUTH_SECRET
 } satisfies NextAuthConfig
 
 const handler = NextAuth(config)
