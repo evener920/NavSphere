@@ -112,4 +112,45 @@ export async function commitFile(
       await delay(1000 * attempt)
     }
   }
-} 
+}
+
+/**
+ * 服务端公开读取：供前台（未登录）首页使用。
+ * 用 GITHUB_PAT（部署环境变量）而非用户会话 token，这样即使数据仓是私有库、
+ * 访客未登录也能读到。带 30s 缓存，读取失败/404 时返回兜底默认值（由调用方回退到本地打包文件）。
+ */
+export async function getFileContentPublic(path: string) {
+  const owner = process.env.GITHUB_OWNER!
+  const repo = process.env.GITHUB_REPO!
+  const branch = process.env.GITHUB_BRANCH || 'main'
+  const token = process.env.GITHUB_PAT || ''
+
+  try {
+    const apiUrl = `https://api.github.com/repos/${owner}/${repo}/contents/${path}?ref=${branch}`
+    const response = await fetch(apiUrl, {
+      headers: {
+        Accept: 'application/vnd.github.v3.raw',
+        Authorization: token ? `token ${token}` : '',
+        'User-Agent': 'NavSphere',
+      },
+      // 30s 数据缓存：后台改动最多 30s 后前台可见，同时避免每次请求都打 GitHub
+      next: { revalidate: 30 },
+    })
+
+    if (response.status === 404) {
+      console.log(`[public] File not found: ${path}, returning default`)
+      if (path.includes('navigation.json')) return { navigationItems: [] }
+      return {}
+    }
+
+    if (!response.ok) {
+      throw new Error(`GitHub API error: ${response.statusText}`)
+    }
+
+    return await response.json()
+  } catch (error) {
+    console.error('[public] Error fetching file:', error)
+    if (path.includes('navigation.json')) return { navigationItems: [] }
+    return {}
+  }
+}
