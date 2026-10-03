@@ -19,6 +19,8 @@ declare module 'next-auth' {
 const config = {
   providers: [
     GitHub({
+      clientId: process.env.GITHUB_CLIENT_ID!,
+      clientSecret: process.env.GITHUB_CLIENT_SECRET!,
       authorization: {
         params: { scope: 'repo' }
       }
