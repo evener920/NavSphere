@@ -3,6 +3,7 @@
 import { signIn } from 'next-auth/react'
 import { useSearchParams } from 'next/navigation'
 import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
 import { Icons } from "@/components/icons"
 import { useState, Suspense } from 'react'
 import {
@@ -18,6 +19,8 @@ function SignInContent() {
   const searchParams = useSearchParams()
   const callbackUrl = searchParams?.get('callbackUrl') || '/admin'
   const [isLoading, setIsLoading] = useState(false)
+  const [password, setPassword] = useState('')
+  const [pwLoading, setPwLoading] = useState(false)
 
   const handleSignIn = async () => {
     try {
@@ -30,6 +33,26 @@ function SignInContent() {
     } catch (error) {
       setIsLoading(false)
       console.error('登录失败:', error)
+    }
+  }
+
+  const handlePasswordSignIn = async () => {
+    try {
+      setPwLoading(true)
+      const res = await signIn('credentials', {
+        password,
+        callbackUrl,
+        redirect: false
+      })
+      if (res?.error) {
+        setPwLoading(false)
+        alert('口令错误')
+        return
+      }
+      window.location.href = callbackUrl
+    } catch (error) {
+      setPwLoading(false)
+      console.error('口令登录失败:', error)
     }
   }
 
@@ -91,6 +114,40 @@ function SignInContent() {
                   </>
                 )}
               </Button>
+              <div className="relative">
+                <div className="absolute inset-0 flex items-center">
+                  <span className="w-full border-t" />
+                </div>
+                <div className="relative flex justify-center text-xs uppercase">
+                  <span className="bg-background px-2 text-muted-foreground">或</span>
+                </div>
+              </div>
+              <div className="grid gap-2">
+                <Input
+                  type="password"
+                  placeholder="管理口令"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') handlePasswordSignIn()
+                  }}
+                  disabled={pwLoading}
+                />
+                <Button
+                  onClick={handlePasswordSignIn}
+                  className="w-full"
+                  disabled={pwLoading || !password}
+                >
+                  {pwLoading ? (
+                    <>
+                      <Icons.spinner className="mr-2 h-4 w-4 animate-spin" />
+                      验证中...
+                    </>
+                  ) : (
+                    "管理口令登录"
+                  )}
+                </Button>
+              </div>
             </CardContent>
             <CardFooter className="flex flex-wrap items-center justify-center gap-2">
               <div className="text-sm text-muted-foreground">
